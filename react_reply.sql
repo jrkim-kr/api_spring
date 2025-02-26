@@ -1,3 +1,7 @@
+-- 💡 해결 방법
+-- MariaDB에서 지원되는 다른 utf8mb4 정렬을 사용해야 합니다.
+-- 가장 비슷한 대체 옵션은 utf8mb4_unicode_ci 또는 utf8mb4_general_ci 입니다.
+
 -- MySQL dump 10.13  Distrib 8.0.25, for Win64 (x86_64)
 --
 -- Host: localhost    Database: react_reply
@@ -27,7 +31,7 @@ CREATE TABLE `api_user` (
   `client_secret` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`client_id`),
   UNIQUE KEY `client_id_UNIQUE` (`client_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

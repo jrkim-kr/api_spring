@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,9 +27,6 @@ import react.reply.util.PageVO;
 public class ReplyController {
 	@Autowired
 	private ReplyRepository replyRepo;
-
-	@Value("${file.upload.path}")
-	private String uploadPath;
 	
 	@GetMapping("/list")
 	public PageMaker list(PageVO vo) {
@@ -66,7 +62,7 @@ public class ReplyController {
 			System.out.println(org);
 			System.out.println(real);
 			// 파일저장
-			String path = uploadPath+"/"+real;
+			String path = "/Users/jrkim/Java/upload/"+real;
 			try {
 				file.transferTo(new File(path));
 			} catch (Exception e) {}
@@ -135,7 +131,7 @@ public class ReplyController {
 			System.out.println(org);
 			System.out.println(real);
 			// 파일저장
-			String path = uploadPath+"/"+real;
+			String path = "D:/upload/"+real;
 			try {
 				file.transferTo(new File(path));
 			} catch (Exception e) {}
@@ -171,7 +167,7 @@ public class ReplyController {
 			System.out.println(org);
 			System.out.println(real);
 			// 파일저장
-			String path = uploadPath+"/"+real;
+			String path = "D:/upload/"+real;
 			try {
 				file.transferTo(new File(path));
 			} catch (Exception e) {}
