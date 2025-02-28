@@ -1,3 +1,6 @@
+/*
+게시글 목록 조회 API 엔드포인트
+ */
 package react.reply.reply;
 
 import java.io.File;
@@ -21,26 +24,31 @@ import react.reply.user.UserEntity;
 import react.reply.util.PageMaker;
 import react.reply.util.PageVO;
 
-@CrossOrigin(origins = {"http://localhost:3000/","http://localhost/"})
-@RestController
-@RequestMapping("/api/reply")
+@CrossOrigin(origins = {"http://localhost:3000/","http://localhost/"}) // CORS 허용 설정
+@RestController // REST API 컨트롤러 선언
+@RequestMapping("/api/reply") // "/api/reply" 경로로 요청 매핑
 public class ReplyController {
 	@Autowired
-	private ReplyRepository replyRepo;
-	
-	@GetMapping("/list")
-	public PageMaker list(PageVO vo) {
+	private ReplyRepository replyRepo; // 게시글 레포지토리 주입
+
+	@GetMapping("/list") // GET 요청 처리
+	public PageMaker list(PageVO vo) { // PageVO: 페이지네이션, 검색 관련 파라미터
 		Page<ReplyEntity> page = null;
+		// 검색 조건에 따른 분기 처리
 		if ("all".equals(vo.getSearchType())) {
+			// 제목+내용 검색
 			page = replyRepo.findByTitleContainingOrContentContaining(vo.getSearchWord(), vo.getSearchWord(), vo.makePageable());
 		} else if ("title".equals(vo.getSearchType())) {
+			// 제목 검색
 			page = replyRepo.findByTitleContaining(vo.getSearchWord(), vo.makePageable());
 		} else if ("content".equals(vo.getSearchType())) {
+			// 내용 검색
 			page = replyRepo.findByContentContaining(vo.getSearchWord(), vo.makePageable());
 		} else {
+			// 검색 없는 전체 목록
 			page = replyRepo.findAll(vo.makePageable());
 		}
-		return new PageMaker(page);
+		return new PageMaker(page); // PageMaker 객체로 변환하여 반환
 	}
 	
 	@Transactional
