@@ -38,9 +38,9 @@ public class ReplyEntity {
 	private String filename_real;
 	private int likecnt;
 	//private int user_no;
-	private int gno;
-	private int ono;
-	private int nested;
+	private int gno; // 그룹 번호 (답변 구조)
+	private int ono; // 순서
+	private int nested; // 들여쓰기 레벨
 	
 	@OneToMany(mappedBy = "parentno")
 	private List<CommentEntity> comment;

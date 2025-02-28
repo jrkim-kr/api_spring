@@ -17,15 +17,15 @@ import java.util.Map;
 public class TokenCheckFilter extends OncePerRequestFilter {
     private JWTUtil jwtUtil;
 
-    public TokenCheckFilter (JWTUtil jwUtil) {
-        this.jwtUtil = jwUtil;
+    public TokenCheckFilter(JWTUtil jwUtil) {
+        this.jwtUtil = jwUtil; // 생성자를 통해 JWT 유틸리티 주입
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String path = request.getRequestURI();
-        if (!path.startsWith("/api")) { // /api 주소가 아니면(일반접속이면) 통과
+        if (!path.startsWith("/api")) { // /api로 시작하지 않는 요청은 토큰 검증 없이 통과
             filterChain.doFilter(request, response);
             return;
         }
@@ -34,44 +34,43 @@ public class TokenCheckFilter extends OncePerRequestFilter {
 
         // AccessToken 검증
         try {
-            validateAccessToken(request);
-            filterChain.doFilter(request, response);
+            validateAccessToken(request); // 토큰 검증 메소드 호출
+            filterChain.doFilter(request, response); // 검증 성공 시 다음 필터로 요청 전달
         } catch (AccessTokenException e) {
-            e.sendResponseError(response);
+            e.sendResponseError(response); // 검증 실패 시 에러 응답 반환
         }
-
     }
 
     // AccessToken 검증
     private Map<String, Object> validateAccessToken(HttpServletRequest request) throws AccessTokenException {
-        String headerStr = request.getHeader("Authorization");
-        if (headerStr == null || headerStr.length() < 8) {
+        String headerStr = request.getHeader("Authorization"); // Authorization 헤더 가져오기
+        if (headerStr == null || headerStr.length() < 8) { // 헤더가 없거나 너무 짧은 경우
             throw new AccessTokenException(AccessTokenException.TOKEN_ERROR.UNACCEPT);
         }
-        // Bearer 생략
+
+        // Bearer 접두사 확인 및 토큰 추출
         String tokenType = headerStr.substring(0,6);
         String tokenStr = headerStr.substring(7);
 
-        if (tokenType.equalsIgnoreCase("Bearer") == false) {
+        if (tokenType.equalsIgnoreCase("Bearer") == false) { // Bearer 타입이 아닌 경우
             throw new AccessTokenException(AccessTokenException.TOKEN_ERROR.BADTYPE);
         }
 
         try {
-            Map<String, Object> value = jwtUtil.validateToken(tokenStr);
-            return value;
-        } catch (MalformedJwtException e) {
+            Map<String, Object> value = jwtUtil.validateToken(tokenStr); // 토큰 검증
+            return value; // 검증 성공 시 페이로드 반환
+        } catch (MalformedJwtException e) { // 잘못된 형식의 JWT
             log.info("MalformedJwtException................");
             throw new AccessTokenException(AccessTokenException.TOKEN_ERROR.MALFORM);
-        } catch (SignatureException e) {
+        } catch (SignatureException e) { // 서명 검증 실패
             log.info("SignaturedException..................");
             throw new AccessTokenException(AccessTokenException.TOKEN_ERROR.BADSIGN);
-        } catch(ExpiredJwtException e) {
+        } catch(ExpiredJwtException e) { // 만료된 토큰
             log.info("ExpiredJwtException..................");
             throw new AccessTokenException(AccessTokenException.TOKEN_ERROR.EXPIRED);
-        } catch (Exception e) {
+        } catch (Exception e) { // 기타 예외
             log.info("Exception......................");
             throw new AccessTokenException(AccessTokenException.TOKEN_ERROR.UNACCEPT);
         }
     }
-
 }
