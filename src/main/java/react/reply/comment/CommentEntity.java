@@ -21,19 +21,22 @@ import react.reply.user.UserEntity;
 @Getter
 @Setter
 @Entity
-@Table(name="comment")
+@Table(name="comment") // 'comment' 테이블과 매핑
 @ToString
 public class CommentEntity {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int no;
-	@Column(name="parent_no")
-	private int parentno;
-	private String content;
-	@CreationTimestamp
-	private Timestamp writedate;
-	
-	@ManyToOne
-	@JoinColumn(name="user_no")
-	private UserEntity user; 
+	@GeneratedValue(strategy = GenerationType.IDENTITY) // 자동 증가 식별자
+	private int no; // 댓글 번호 (PK)
+
+	@Column(name="parent_no") // 컬럼명 매핑
+	private int parentno; // 게시글 번호 (FK)
+
+	private String content; // 댓글 내용
+
+	@CreationTimestamp // 생성 시 자동으로 시간 설정
+	private Timestamp writedate; // 작성일시
+
+	@ManyToOne // 사용자와의 N:1 관계 매핑
+	@JoinColumn(name="user_no") // 외래 키 설정
+	private UserEntity user; // 작성자 정보
 }

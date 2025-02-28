@@ -31,6 +31,7 @@ public class ReplyController {
 	@Autowired
 	private ReplyRepository replyRepo; // 게시글 레포지토리 주입
 
+	// 게시글 목록 조회 기능
 	@GetMapping("/list") // GET 요청 처리
 	public PageMaker list(PageVO vo) { // PageVO: 페이지네이션, 검색 관련 파라미터
 		Page<ReplyEntity> page = null;
@@ -50,55 +51,62 @@ public class ReplyController {
 		}
 		return new PageMaker(page); // PageMaker 객체로 변환하여 반환
 	}
-	
-	@Transactional
-	@PostMapping("/regist")
+
+	// 게시글 등록 기능
+	@Transactional // 트랜잭션 처리
+	@PostMapping("/regist") // POST 요청 처리
 	public Map<String, Object> regist(@RequestParam Map map, @RequestParam(name = "file", required = false) MultipartFile file) {
 		UserEntity userEntity = new UserEntity();
-		userEntity.setNo(Integer.parseInt((String)map.get("user_no")));
-		
+		userEntity.setNo(Integer.parseInt((String)map.get("user_no"))); // 사용자 번호 설정
+
 		ReplyEntity replyEntity = new ReplyEntity();
-		replyEntity.setTitle((String)map.get("title"));
-		replyEntity.setContent((String)map.get("content"));
-		
-		// 첨부파일
+		replyEntity.setTitle((String)map.get("title")); // 제목 설정
+		replyEntity.setContent((String)map.get("content")); // 내용 설정
+
+		// 첨부파일 처리
 		if (file != null && !file.isEmpty()) {
-			// 파일명
-			String org = file.getOriginalFilename();
-			String ext = org.substring(org.lastIndexOf("."));
-			String real = System.currentTimeMillis()+ext;
+			// 파일명 처리
+			String org = file.getOriginalFilename(); // 원본 파일명
+			String ext = org.substring(org.lastIndexOf(".")); // 파일 확장자 추출
+			String real = System.currentTimeMillis()+ext; // 실제 저장 파일명 (중복 방지를 위해 시간값 사용)
 			System.out.println(org);
 			System.out.println(real);
-			// 파일저장
-			String path = "/Users/jrkim/Java/upload/"+real;
+
+			// 파일 저장
+			String path = "/Users/jrkim/Java/upload/"+real; // 파일 저장 경로
 			try {
-				file.transferTo(new File(path));
-			} catch (Exception e) {}
-			replyEntity.setFilename_org(org);
-			replyEntity.setFilename_real(real);
+				file.transferTo(new File(path)); // 파일 저장
+			} catch (Exception e) {} // 예외 처리
+
+			replyEntity.setFilename_org(org); // 원본 파일명 설정
+			replyEntity.setFilename_real(real); // 실제 저장 파일명 설정
 		}
-		
-		
-		replyEntity.setUser(userEntity);
-		ReplyEntity entity = replyRepo.save(replyEntity);
+
+		replyEntity.setUser(userEntity); // 사용자 정보 설정
+		ReplyEntity entity = replyRepo.save(replyEntity); // 게시글 저장
+
+		// 그룹 번호 설정 (원글의 경우 자신의 번호가 그룹 번호)
 		if (entity != null) {
-			entity.setGno(entity.getNo());
-			replyRepo.save(entity);
+			entity.setGno(entity.getNo()); // 원글 그룹 번호 설정
+			replyRepo.save(entity); // 게시글 업데이트
 		}
+
+		// 결과 반환
 		Map<String, Object> result = new HashMap<>();
-		result.put("entity", entity);
-		result.put("result", entity == null ? "fail" : "success");
+		result.put("entity", entity); // 저장된 엔티티
+		result.put("result", entity == null ? "fail" : "success"); // 결과 상태
 		return result;
 	}
-	
-	@GetMapping("/view")
+
+	// 조회 기능
+	@GetMapping("/view") // GET 요청 처리
 	public ReplyEntity view(int no, PageVO vo) {
-		ReplyEntity entity = replyRepo.findById(no).get();
-		entity.setViewcnt(entity.getViewcnt()+1);
-		replyRepo.save(entity);
-		return entity;
+		ReplyEntity entity = replyRepo.findById(no).get(); // ID로 게시글 조회
+		entity.setViewcnt(entity.getViewcnt()+1); // 조회수 증가
+		replyRepo.save(entity); // 게시글 업데이트
+		return entity; // 게시글 데이터 반환
 	}
-	
+
 	@Autowired
 	private CommentRepository commentRepo;
 	
